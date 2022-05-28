@@ -4,7 +4,7 @@ import socket
 import time
 import math
 import numpy as np
-from ackermann_msgs.msg import AckermannDrive
+from ackermann_msgs.msg import AckermannDrive, String
 
 test_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 target_x = 1
@@ -20,17 +20,21 @@ k_i_speed = 1.5
 k_i_angle = 0.5
 error_i = np.array([0,0,0])
 v0 = 0
+x_current = 0
+y_current = 0
+theta_current = 0
+
+def get_current_position(data):
+    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
+    x_current = data.x
+    y_current = data.y
+    theta_current = data.theta
+
 ackermann = AckermannDrive()
 ackermann.speed = 0.0
 ackermann.steering_angle = 0.0
 ackermann_cmd_pub = rospy.Publisher('/tianracer/ackermann_cmd', AckermannDrive, queue_size=5)
-pose_sub = rospy.Subscriber('vrpn_client_node/vehcle/pose')
-
-def get_current_position():
-    data = pose_sub.subscriber()
-    x = data.x
-    y = data.y
-    return x, y
+pose_sub = rospy.Subscriber('vrpn_client_node/vehcle/pose',String,get_current_position)
 
 def run_as_circle(x,y):
     v = 0.0
@@ -52,7 +56,7 @@ def follow_stright_line(start_point,end_point):
         theta_points[i+1] = (theta_points[i]+math.atan2((y_points[i+1]-y_points[i]), (x_points[i+1]-x_points[i])))/2
     return x_points, y_points, theta_points
 
-def PID(x_current,y_current,theta_current,current_target_x,current_target_y,current_target_theta):
+def PID(current_target_x,current_target_y,current_target_theta):
     # Vertical control
     R = np.array([[math.cos(theta_current),math.sin(theta_current),0],[-math.sin(theta_current),math.cos(theta_current),0],[0,0,1]])
     world_frame_point = np.array(current_target_x-x_current,current_target_y-y_current,current_target_theta-theta_current)
@@ -80,8 +84,7 @@ def main():
     r = rospy.Rate(T)
     f = open('/home/tianbot/tianbot_ws/src/tianracer/tianracer_test/scripts/test.txt','a')
     f.write('\n%s' % test_time)
-    x0,y0,theta0 = get_current_position()
-    start_point = np.array([x0,y0,theta0])
+    start_point = np.array([x_current,y_current,theta_current])
     end_point = np.array([target_x,target_y,target_theta])
     x_points,y_points,theta_points = follow_stright_line(start_point,end_point)
     current_target_x = x_points[cnt]
@@ -100,7 +103,7 @@ def main():
             current_target_y = y_points[cnt]
             current_target_theta = theta_points[cnt]
             x_points,y_points,theta_points = follow_stright_line(start_point,end_point)
-            v,steering_angle = PID(x_current,y_current,theta_current,current_target_x,current_target_y,current_target_theta)
+            v,steering_angle = PID(current_target_x,current_target_y,current_target_theta)
             publish_command(v,steering_angle)
             #history_distance.append(x)
             #history_distance.pop(0)
