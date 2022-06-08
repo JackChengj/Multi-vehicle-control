@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="motion_test_car" type="class_test_demo.py" name="test_demo" output="screen">
+
+    </node>
+</launch>

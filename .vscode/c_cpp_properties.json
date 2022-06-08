@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/jackcheng/tianbot_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/jackcheng/tianbot_ws/src/follow_goals/include/**",
+                "/home/jackcheng/slxy_ws/src/grid_path_searcher/include/**",
+                "/home/jackcheng/tianbot_ws/src/tianracer/motion_test_car/include/**",
+                "/home/jackcheng/tianbot_ws/src/tianracer/tianracer_core/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}
